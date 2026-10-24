@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Final 2D Walk & Talk Animation (With 3 Arm Joints)</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #e0f7fa;
+            overflow: hidden;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        /* বাটনগুলোর ডিজাইন */
+        .controls {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            display: flex;
+            gap: 15px;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 10px 20px;
+            border-radius: 30px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+        }
+
+        .btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 20px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #ccc;
+            color: #555;
+        }
+
+        .btn.active {
+            background-color: #3498db;
+            color: white;
+            box-shadow: 0 2px 5px rgba(52, 152, 219, 0.4);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .scene {
+            position: relative;
+            width: 100%;
+            height: 400px;
+            overflow: hidden;
+            background: linear-gradient(to bottom, #b2ebf2 70%, #f0f0f0 70%);
+        }
+
+        /* চলন্ত জমিন */
+        .ground {
+            position: absolute;
+            bottom: 0;
+            width: 200%;
+            height: 30%;
+            background-image: repeating-linear-gradient(
+                to right,
+                #ccc 0px,
+                #ccc 40px,
+                #fff 40px,
+                #fff 80px
+            );
+            background-size: 80px 100%;
+        }
+
+        /* ক্যারেক্টারের মূল বডি */
+        .character-container {
+            position: absolute;
+            bottom: 120px;
+            left: 45%;
+            width: 100px;
+            height: 250px;
+            transform-origin: bottom center;
+        }
+
+        /* ম্যানুয়াল পজিশনিং এর জন্য র‍্যাপার */
+        .layer-wrapper {
+            position: absolute;
+            transform-origin: center center;
+            transition: transform 0.4s ease-in-out;
+        }
+
+        /* --- বেসিক ডিজাইন --- */
+        .head {
+            position: absolute; top: -40px; left: 10px; width: 40px; height: 40px;
+            background-color: #333; border-radius: 50%; z-index: 10;
+            transform-origin: bottom center;
+        }
+        .torso {
+            position: absolute; top: 0; left: 25px; width: 30px; height: 90px;
+            background-color: #333; border-radius: 15px; z-index: 10;
+            transform-origin: top center;
+        }
+
+        .joint {
+            position: absolute; width: 10px; height: 10px; background-color: red;
+            border-radius: 50%; z-index: 30; /* z-index বাড়ানো হয়েছে যাতে হাতের ওপরে দেখা যায় */
+            transform: translate(-50%, -50%);
+        }
+
+        .leg {
+            position: absolute; top: 85px; left: 35px; width: 12px; height: 80px;
+            transform-origin: top center; z-index: 5;
+        }
+        .thigh {
+            width: 100%; height: 100%; background-color: #1976d2;
+            border-radius: 6px; position: relative;
+        }
+        .calf {
+            position: absolute; top: 75px; left: 0; width: 100%; height: 75px;
+            background-color: #1976d2; border-radius: 6px; transform-origin: top center;
+        }
+        .foot {
+            position: absolute; bottom: 5px; left: 0; width: 30px; height: 10px;
+            background-color: #333; border-radius: 0 5px 5px 0; transform-origin: left center;
+        }
+
+        /* হাতের স্ট্রাকচার */
+        .arm {
+            position: absolute; top: 10px; left: 30px; width: 10px; height: 70px;
+            transform-origin: top center; z-index: 15;
+        }
+        .upper-arm {
+            width: 100%; height: 100%;
+            border-radius: 5px; position: relative;
+        }
+        .lower-arm {
+            position: absolute; top: 65px; left: 0; width: 100%; height: 60px;
+            border-radius: 5px; transform-origin: top center;
+        }
+
+        /* হাতের তালু (Palm) ডিজাইন */
+        .palm {
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 16px;  
+            height: 16px;
+            border-radius: 50%; 
+            z-index: 25;
+        }
+
+        /* বাম হাত (পেছনের হাত) - বেগুনি */
+        .arm-back .upper-arm,
+        .arm-back .lower-arm {
+            background-color: #9b59b6; 
+        }
+        .arm-back .palm {
+            background-color: #9b59b6;
+        }
+
+        /* ডান হাত (সামনের হাত) - সবুজ */
+        .arm-front .upper-arm,
+        .arm-front .lower-arm {
+            background-color: #2ecc71; 
+        }
+        .arm-front .palm {
+            background-color: #2ecc71;
+        }
+
+
+        /* =========================================
+           অ্যানিমেশন Keyframes
+           ========================================= */
+
+        /* হাঁটার অ্যানিমেশন */
+        @keyframes scrollGroundLeft { 0% { transform: translateX(0); } 100% { transform: translateX(-80px); } }
+        @keyframes bodyBounce { 0%, 100% { transform: translateY(0); } 25% { transform: translateY(-5px); } 50% { transform: translateY(0); } 75% { transform: translateY(-5px); } }
+        
+        @keyframes walkFrontLeg { 0% { transform: rotate(-25deg); } 50% { transform: rotate(25deg); } 75% { transform: rotate(0deg); } 100% { transform: rotate(-25deg); } }
+        @keyframes kneeFrontLeg { 0% { transform: rotate(0deg); } 50% { transform: rotate(10deg); } 75% { transform: rotate(60deg); } 100% { transform: rotate(0deg); } }
+        @keyframes footFrontLeg { 0% { transform: rotate(-20deg); } 25% { transform: rotate(0deg); } 50% { transform: rotate(20deg); } 75% { transform: rotate(-10deg); } 100% { transform: rotate(-20deg); } }
+
+        @keyframes walkBackLeg { 0% { transform: rotate(25deg); } 50% { transform: rotate(-25deg); } 100% { transform: rotate(25deg); } }
+        @keyframes kneeBackLeg { 0% { transform: rotate(10deg); } 25% { transform: rotate(60deg); } 50% { transform: rotate(0deg); } 100% { transform: rotate(10deg); } }
+        @keyframes footBackLeg { 0% { transform: rotate(20deg); } 25% { transform: rotate(-20deg); } 50% { transform: rotate(0deg); } 75% { transform: rotate(20deg); } 100% { transform: rotate(20deg); } }
+
+        @keyframes elbowFrontArm { 0% { transform: rotate(10deg); } 50% { transform: rotate(-35deg); } 100% { transform: rotate(10deg); } }
+        @keyframes elbowBackArm { 0% { transform: rotate(-35deg); } 50% { transform: rotate(10deg); } 100% { transform: rotate(-35deg); } }
+
+        /* কথা বলার অ্যানিমেশন */
+        @keyframes talkHeadNod { 
+            0% { transform: rotate(-3deg); } 
+            100% { transform: rotate(3deg); } 
+        }
+        
+        @keyframes gestureRightArm {
+            0% { transform: rotate(0deg); }
+            50% { transform: rotate(-25deg); } 
+            100% { transform: rotate(0deg); }
+        }
+        @keyframes gestureRightElbow {
+            0% { transform: rotate(10deg); }
+            50% { transform: rotate(40deg); } 
+            100% { transform: rotate(10deg); }
+        }
+
+        /* =========================================
+           স্টেট অনুযায়ী অ্যানিমেশন ও পজিশন
+           ========================================= */
+
+        /* --- Walking State --- */
+        .walking .ground { animation: scrollGroundLeft 1s linear infinite; }
+        .walking .character-container { animation: bodyBounce 1s infinite linear; }
+        
+        .walking .leg-front { animation: walkFrontLeg 1s infinite linear; z-index: 6; }
+        .walking .leg-front .calf { animation: kneeFrontLeg 1s infinite linear; }
+        .walking .leg-front .foot { animation: footFrontLeg 1s infinite linear; }
+
+        .walking .leg-back { animation: walkBackLeg 1s infinite linear; z-index: 4; }
+        .walking .leg-back .calf { animation: kneeBackLeg 1s infinite linear; }
+        .walking .leg-back .foot { animation: footBackLeg 1s infinite linear; }
+
+        .walking .arm-front { animation: walkBackLeg 1s infinite linear; z-index: 16; }
+        .walking .arm-front .lower-arm { animation: elbowFrontArm 1s infinite linear; }
+        .walking .arm-back { animation: walkFrontLeg 1s infinite linear; z-index: 12; }
+        .walking .arm-back .lower-arm { animation: elbowBackArm 1s infinite linear; }
+
+        .walking .head { transform: none; }
+
+
+        /* --- Talking State --- */
+        .talking .ground { animation: none; } 
+        .talking .character-container { animation: none; }
+        
+        .talking #wrap-head { transform: translate(18px, -5px) rotate(0deg) scaleX(1) !important; }
+        .talking #wrap-torso { transform: translate(0px, 0px) rotate(0deg) scaleX(1) !important; }
+        .talking #wrap-arm-back { transform: translate(50px, -6px) rotate(-5deg) scaleX(-1) !important; }
+        .talking #wrap-arm-front { transform: translate(26px, -26px) rotate(-82deg) scaleX(-1) !important; }
+        .talking #wrap-leg-back { transform: translate(-15px, 0px) rotate(-5deg) scaleX(1) !important; }
+        .talking #wrap-leg-front { transform: translate(15px, 0px) rotate(5deg) scaleX(1) !important; }
+
+        .talking .leg-front, .talking .leg-back { animation: none; }
+        .talking .leg-front .calf, .talking .leg-back .calf { animation: none; transform: rotate(0deg); }
+        .talking .leg-front .foot, .talking .leg-back .foot { animation: none; transform: rotate(0deg); }
+
+        .talking .arm-back { animation: none; }
+        .talking .arm-back .lower-arm { animation: none; transform: rotate(10deg); }
+
+        .talking .arm-front { animation: gestureRightArm 1s infinite ease-in-out; }
+        .talking .arm-front .lower-arm { animation: gestureRightElbow 1s infinite ease-in-out; }
+
+        .talking .head { animation: talkHeadNod 0.6s infinite alternate ease-in-out; }
+
+    </style>
+</head>
+<body class="talking"> <!-- ডিফল্টে Talking মোড চালু -->
+
+    <div class="controls">
+        <button class="btn" id="btn-walk" onclick="setMode('walking')">🚶‍♂️ Walk</button>
+        <button class="btn active" id="btn-talking" onclick="setMode('talking')">🗣️ Talking</button>
+    </div>
+
+    <div class="scene">
+        <div class="ground" id="ground"></div>
+        
+        <div class="character-container" id="character">
+            
+            <!-- Head -->
+            <div class="layer-wrapper" id="wrap-head" style="transform: translate(10px, 1px) rotate(-2deg);">
+                <div class="head"></div>
+            </div>
+
+            <!-- Torso -->
+            <div class="layer-wrapper" id="wrap-torso" style="transform: translate(-6px, 0px) rotate(0deg);">
+                <div class="torso">
+                    <div class="joint" style="top: 90px; left: 50%;"></div>
+                </div>
+            </div>
+
+            <!-- Back Arm (Left Arm) - Purple -->
+            <div class="layer-wrapper" id="wrap-arm-back" style="transform: translate(10px, 0px) rotate(0deg);">
+                <div class="arm arm-back" style="left: 25px; top: 20px;">
+                    <div class="upper-arm">
+                        <!-- ১. কাঁধের পয়েন্ট (Shoulder) -->
+                        <div class="joint" style="top: 0; left: 50%;"></div>
+                        
+                        <div class="lower-arm">
+                            <!-- ২. কনুইয়ের পয়েন্ট (Elbow) -->
+                            <div class="joint" style="top: 0; left: 50%;"></div>
+                            
+                            <!-- ৩. কব্জির পয়েন্ট (Wrist) - পামের ঠিক ওপরে -->
+                            <div class="joint" style="bottom: 0; left: 50%;"></div>
+                            
+                            <!-- Palm for Back Arm -->
+                            <div class="palm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Back Leg -->
+            <div class="layer-wrapper" id="wrap-leg-back" style="transform: translate(0px, 0px) rotate(0deg);">
+                <div class="leg leg-back" style="left: 40px;">
+                    <div class="thigh">
+                        <div class="joint" style="top: 0; left: 50%;"></div>
+                        <div class="calf">
+                            <div class="joint" style="top: 0; left: 50%;"></div>
+                            <div class="foot">
+                                <div class="joint" style="top: 50%; left: 0;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Front Leg -->
+            <div class="layer-wrapper" id="wrap-leg-front" style="transform: translate(2px, 0px) rotate(0deg);">
+                <div class="leg leg-front" style="left: 30px;">
+                    <div class="thigh">
+                        <div class="joint" style="top: 0; left: 50%;"></div>
+                        <div class="calf">
+                            <div class="joint" style="top: 0; left: 50%;"></div>
+                            <div class="foot">
+                                <div class="joint" style="top: 50%; left: 0;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Front Arm (Right Arm) - Green -->
+            <div class="layer-wrapper" id="wrap-arm-front" style="transform: translate(0px, 0px) rotate(0deg);">
+                <div class="arm arm-front" style="left: 35px; top: 20px;">
+                    <div class="upper-arm">
+                        <!-- ১. কাঁধের পয়েন্ট (Shoulder) -->
+                        <div class="joint" style="top: 0; left: 50%;"></div>
+                        
+                        <div class="lower-arm">
+                            <!-- ২. কনুইয়ের পয়েন্ট (Elbow) -->
+                            <div class="joint" style="top: 0; left: 50%;"></div>
+                            
+                            <!-- ৩. কব্জির পয়েন্ট (Wrist) - পামের ঠিক ওপরে -->
+                            <div class="joint" style="bottom: 0; left: 50%;"></div>
+                            
+                            <!-- Palm for Front Arm -->
+                            <div class="palm"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function setMode(mode) {
+            document.body.classList.remove('walking', 'talking');
+            document.body.classList.add(mode);
+            
+            const walkBtn = document.getElementById('btn-walk');
+            const talkBtn = document.getElementById('btn-talking');
+
+            if (mode === 'walking') {
+                walkBtn.classList.add('active');
+                talkBtn.classList.remove('active');
+            } else {
+                talkBtn.classList.add('active');
+                walkBtn.classList.remove('active');
+            }
+        }
+    </script>
+</body>
+</html>

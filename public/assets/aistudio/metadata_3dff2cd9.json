@@ -1,0 +1,6 @@
+{
+  "name": "2D Walk & Talk Studio",
+  "description": "Fully responsive 2D character walk and talk animation studio with interactive controls, AI speech, and device responsiveness.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

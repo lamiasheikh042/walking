@@ -1,0 +1,6 @@
+{
+  "name": "2D Character Rig & Animation Studio",
+  "description": "2D character walk and talk animation studio with joint-locked limbs, position presets, and live CSS export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

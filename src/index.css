@@ -1,0 +1,768 @@
+@import "tailwindcss";
+
+html, body, #root {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  background: transparent !important;
+  background-color: transparent !important;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ==========================================================================
+   Left-Side Controls Toolbar
+   ========================================================================== */
+.controls {
+  position: fixed;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.96);
+  padding: 12px;
+  border-radius: 22px;
+  box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.18), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(226, 232, 240, 0.85);
+  min-width: 165px;
+}
+
+.controls-title {
+  font-size: 11px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+  padding: 2px 6px 4px 6px;
+  border-bottom: 1px solid #f1f5f9;
+  margin-bottom: 2px;
+}
+
+.btn {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 14px;
+  font-size: 13.5px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  background-color: #f1f5f9;
+  color: #475569;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+  width: 100%;
+  text-align: left;
+}
+
+.btn.active {
+  background: linear-gradient(135deg, #2563eb, #3b82f6);
+  color: white;
+  box-shadow: 0 4px 14px rgba(37, 99, 235, 0.4);
+}
+
+.btn.btn-panel-active {
+  background: linear-gradient(135deg, #ea580c, #f97316);
+  color: white;
+  box-shadow: 0 4px 14px rgba(234, 88, 12, 0.4);
+}
+
+.btn:hover:not(.active):not(.btn-panel-active) {
+  background-color: #e2e8f0;
+  transform: translateX(2px);
+}
+
+.btn-toggle {
+  padding: 9px 14px;
+  font-size: 12px;
+  font-weight: 700;
+  border-radius: 14px;
+  background: #f8fafc;
+  color: #64748b;
+  border: 1px solid #cbd5e1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 6px;
+  width: 100%;
+  transition: all 0.2s ease;
+}
+
+.btn-toggle.active {
+  background: #e0e7ff;
+  color: #3730a3;
+  border-color: #a5b4fc;
+}
+
+.btn-toggle:hover {
+  background-color: #f1f5f9;
+  transform: translateX(2px);
+}
+
+/* ==========================================================================
+   Scene & Atmosphere (Transparent)
+   ========================================================================== */
+.scene {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+  background: transparent !important;
+}
+
+.bg-clouds,
+.bg-skyline,
+.ground,
+.ground-pavement {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Character Container
+   ========================================================================== */
+.character-container {
+  position: absolute;
+  bottom: calc(28% - 30px);
+  left: 50%;
+  margin-left: -60px;
+  width: 120px;
+  height: 300px;
+  transform-origin: bottom center;
+}
+
+.char-shadow {
+  display: none !important;
+}
+
+/* ==========================================================================
+   Joint Sockets & Transform Origins
+   ========================================================================== */
+
+/* Head & Neck Joint Socket */
+#wrap-head {
+  position: absolute;
+  left: 30px;
+  top: -38px;
+  width: 62px;
+  height: 62px;
+  transform-origin: 32px 50px !important;
+}
+.head {
+  transform-origin: 32px 50px !important;
+}
+
+/* Torso Pivot */
+#wrap-torso {
+  position: absolute;
+  left: 36px;
+  top: 12px;
+  width: 52px;
+  height: 102px;
+  transform-origin: 26px 14px !important;
+}
+.torso {
+  transform-origin: 26px 14px !important;
+}
+
+/* Back Shoulder Joint Socket */
+#wrap-arm-back {
+  position: absolute;
+  left: 28px;
+  top: 12px;
+  width: 24px;
+  height: 130px;
+  transform-origin: 12px 10px !important;
+}
+.arm-back,
+#wrap-arm-back .upper-arm {
+  transform-origin: 12px 10px !important;
+}
+#wrap-arm-back .lower-arm {
+  transform-origin: 12px 8px !important;
+}
+
+/* Front Shoulder Joint Socket */
+#wrap-arm-front {
+  position: absolute;
+  left: 54px;
+  top: 16px;
+  width: 24px;
+  height: 130px;
+  transform-origin: 12px 10px !important;
+}
+.arm-front,
+#wrap-arm-front .upper-arm {
+  transform-origin: 12px 10px !important;
+}
+#wrap-arm-front .lower-arm {
+  transform-origin: 12px 8px !important;
+}
+
+/* Back Hip Joint Socket */
+#wrap-leg-back {
+  position: absolute;
+  left: 36px;
+  top: 90px;
+  width: 26px;
+  height: 175px;
+  transform-origin: 13px 10px !important;
+}
+.leg-back,
+#wrap-leg-back .thigh {
+  transform-origin: 13px 10px !important;
+}
+#wrap-leg-back .calf {
+  transform-origin: 13px 8px !important;
+}
+#wrap-leg-back .foot {
+  transform-origin: 16px 8px !important;
+}
+
+/* Front Hip Joint Socket */
+#wrap-leg-front {
+  position: absolute;
+  left: 46px;
+  top: 92px;
+  width: 26px;
+  height: 175px;
+  transform-origin: 13px 10px !important;
+}
+.leg-front,
+#wrap-leg-front .thigh {
+  transform-origin: 13px 10px !important;
+}
+#wrap-leg-front .calf {
+  transform-origin: 13px 8px !important;
+}
+#wrap-leg-front .foot {
+  transform-origin: 16px 8px !important;
+}
+
+/* Layer Wrapper */
+.layer-wrapper {
+  transition: transform 0.1s ease-out;
+}
+
+/* Joint Indicators with Internal Numbers */
+.joint {
+  position: absolute;
+  width: 17px;
+  height: 17px;
+  background-color: #dc2626;
+  border: 1.5px solid #ffffff;
+  box-shadow: 0 0 6px rgba(0, 0, 0, 0.65), 0 1px 3px rgba(0, 0, 0, 0.4);
+  border-radius: 50%;
+  z-index: 50;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8px;
+  font-weight: 800;
+  color: #ffffff;
+  line-height: 1;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  user-select: none;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.joint span {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  text-align: center;
+}
+
+/* Green Highlight for Selected Joint */
+.joint.selected-green {
+  background-color: #16a34a !important;
+  border-color: #ffffff !important;
+  box-shadow: 0 0 10px #22c55e, 0 0 20px rgba(34, 197, 94, 0.8), 0 1px 3px rgba(0, 0, 0, 0.5) !important;
+  transform: translate(-50%, -50%) scale(1.35) !important;
+  z-index: 80 !important;
+  animation: jointPulseGreen 1.2s infinite alternate ease-in-out;
+}
+
+@keyframes jointPulseGreen {
+  0% { transform: translate(-50%, -50%) scale(1.25); box-shadow: 0 0 8px #22c55e; }
+  100% { transform: translate(-50%, -50%) scale(1.4); box-shadow: 0 0 14px #22c55e, 0 0 22px #16a34a; }
+}
+
+/* ==========================================================================
+   Only Joints (Skeleton / Joint-Only) Mode
+   ========================================================================== */
+.character-container.only-joints-mode svg:not(.skeleton-bones) {
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+.character-container.only-joints-mode .char-shadow {
+  opacity: 0.15;
+}
+
+.character-container.only-joints-mode .joint {
+  width: 19px;
+  height: 19px;
+  background-color: #ef4444;
+  border: 2px solid #ffffff;
+  box-shadow: 0 0 10px rgba(239, 68, 68, 0.95), 0 0 4px rgba(0, 0, 0, 0.8);
+  font-size: 9px;
+  z-index: 60;
+}
+
+/* Disable auto-walk/talk animations when in Custom mode or Puppet Warp mode */
+.custom .character-bob,
+.custom .head,
+.custom .arm-front,
+.custom .arm-front .lower-arm,
+.custom .arm-back,
+.custom .arm-back .lower-arm,
+.custom .leg-front,
+.custom .leg-front .calf,
+.custom .leg-front .foot,
+.custom .leg-back,
+.custom .leg-back .calf,
+.custom .leg-back .foot,
+.custom .mouth-shape,
+.puppet-warp-active .character-bob,
+.puppet-warp-active .head,
+.puppet-warp-active .arm-front,
+.puppet-warp-active .arm-front .lower-arm,
+.puppet-warp-active .arm-back,
+.puppet-warp-active .arm-back .lower-arm,
+.puppet-warp-active .leg-front,
+.puppet-warp-active .leg-front .calf,
+.puppet-warp-active .leg-front .foot,
+.puppet-warp-active .leg-back,
+.puppet-warp-active .leg-back .calf,
+.puppet-warp-active .leg-back .foot,
+.puppet-warp-active .mouth-shape,
+.puppet-warp-active .ground-pavement {
+  animation: none !important;
+}
+
+.skeleton-bones {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 45;
+}
+
+/* Depth Shading for Back Limbs */
+.arm-back, .leg-back {
+  filter: brightness(0.82) contrast(1.05);
+}
+
+/* ==========================================================================
+   Animation Keyframes
+   ========================================================================== */
+
+@keyframes scrollGroundLeft {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-80px); }
+}
+
+@keyframes bodyBounce {
+  0%, 100% { transform: translateY(0); }
+  25% { transform: translateY(-7px); }
+  50% { transform: translateY(0); }
+  75% { transform: translateY(-7px); }
+}
+
+@keyframes shadowPulse {
+  0%, 100% { transform: translateX(-50%) scale(1); opacity: 0.45; }
+  25% { transform: translateX(-50%) scale(0.88); opacity: 0.3; }
+  50% { transform: translateX(-50%) scale(1); opacity: 0.45; }
+  75% { transform: translateX(-50%) scale(0.88); opacity: 0.3; }
+}
+
+/* Front Leg Cycle */
+@keyframes walkFrontLeg {
+  0% { transform: rotate(-24deg); }
+  50% { transform: rotate(24deg); }
+  75% { transform: rotate(0deg); }
+  100% { transform: rotate(-24deg); }
+}
+
+@keyframes kneeFrontLeg {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(12deg); }
+  75% { transform: rotate(55deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes footFrontLeg {
+  0% { transform: rotate(-18deg); }
+  25% { transform: rotate(0deg); }
+  50% { transform: rotate(18deg); }
+  75% { transform: rotate(-10deg); }
+  100% { transform: rotate(-18deg); }
+}
+
+/* Back Leg Cycle */
+@keyframes walkBackLeg {
+  0% { transform: rotate(24deg); }
+  50% { transform: rotate(-24deg); }
+  100% { transform: rotate(24deg); }
+}
+
+@keyframes kneeBackLeg {
+  0% { transform: rotate(12deg); }
+  25% { transform: rotate(55deg); }
+  50% { transform: rotate(0deg); }
+  100% { transform: rotate(12deg); }
+}
+
+@keyframes footBackLeg {
+  0% { transform: rotate(18deg); }
+  25% { transform: rotate(-18deg); }
+  50% { transform: rotate(0deg); }
+  75% { transform: rotate(18deg); }
+  100% { transform: rotate(18deg); }
+}
+
+/* Front Arm Cycle */
+@keyframes walkFrontArm {
+  0% { transform: rotate(22deg); }
+  50% { transform: rotate(-22deg); }
+  100% { transform: rotate(22deg); }
+}
+
+@keyframes elbowFrontArm {
+  0% { transform: rotate(8deg); }
+  50% { transform: rotate(-30deg); }
+  100% { transform: rotate(8deg); }
+}
+
+/* Back Arm Cycle */
+@keyframes walkBackArm {
+  0% { transform: rotate(-22deg); }
+  50% { transform: rotate(22deg); }
+  100% { transform: rotate(-22deg); }
+}
+
+@keyframes elbowBackArm {
+  0% { transform: rotate(-30deg); }
+  50% { transform: rotate(8deg); }
+  100% { transform: rotate(-30deg); }
+}
+
+/* Talking Mode Gestures */
+@keyframes talkHeadNod {
+  0% { transform: rotate(-3deg); }
+  100% { transform: rotate(3deg); }
+}
+
+@keyframes gestureFrontArm {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(-22deg); }
+  100% { transform: rotate(0deg); }
+}
+
+@keyframes gestureFrontElbow {
+  0% { transform: rotate(10deg); }
+  50% { transform: rotate(40deg); }
+  100% { transform: rotate(10deg); }
+}
+
+@keyframes talkMouth {
+  0%, 100% { transform: scaleY(0.4); }
+  50% { transform: scaleY(1.3); }
+}
+
+/* ==========================================================================
+   Animation Playback Rules
+   ========================================================================== */
+
+/* Walking State */
+.walking:not(.anim-paused) .ground-pavement {
+  animation: scrollGroundLeft 1s linear infinite;
+}
+.walking:not(.anim-paused) .character-bob {
+  animation: bodyBounce 1s infinite linear;
+}
+.walking:not(.anim-paused) .char-shadow {
+  animation: shadowPulse 1s infinite linear;
+}
+
+.walking:not(.anim-paused) .leg-front {
+  animation: walkFrontLeg 1s infinite linear;
+}
+.walking:not(.anim-paused) .leg-front .calf {
+  animation: kneeFrontLeg 1s infinite linear;
+}
+.walking:not(.anim-paused) .leg-front .foot {
+  animation: footFrontLeg 1s infinite linear;
+}
+
+.walking:not(.anim-paused) .leg-back {
+  animation: walkBackLeg 1s infinite linear;
+}
+.walking:not(.anim-paused) .leg-back .calf {
+  animation: kneeBackLeg 1s infinite linear;
+}
+.walking:not(.anim-paused) .leg-back .foot {
+  animation: footBackLeg 1s infinite linear;
+}
+
+.walking:not(.anim-paused) .arm-front {
+  animation: walkFrontArm 1s infinite linear;
+}
+.walking:not(.anim-paused) .arm-front .lower-arm {
+  animation: elbowFrontArm 1s infinite linear;
+}
+
+.walking:not(.anim-paused) .arm-back {
+  animation: walkBackArm 1s infinite linear;
+}
+.walking:not(.anim-paused) .arm-back .lower-arm {
+  animation: elbowBackArm 1s infinite linear;
+}
+
+/* Talking State */
+.talking .ground-pavement {
+  animation: none;
+}
+.talking .character-container {
+  animation: none;
+}
+
+.talking:not(.anim-paused) .head {
+  animation: talkHeadNod 0.6s infinite alternate ease-in-out;
+}
+
+.talking:not(.anim-paused) .arm-front {
+  animation: gestureFrontArm 1s infinite ease-in-out;
+}
+.talking:not(.anim-paused) .arm-front .lower-arm {
+  animation: gestureFrontElbow 1s infinite ease-in-out;
+}
+
+.talking:not(.anim-paused) .mouth-shape {
+  animation: talkMouth 0.35s infinite alternate ease-in-out;
+}
+
+/* ==========================================================================
+   Pause Override
+   ========================================================================== */
+.anim-paused .ground-pavement,
+.anim-paused .character-bob,
+.anim-paused .char-shadow,
+.anim-paused .leg-front,
+.anim-paused .leg-back,
+.anim-paused .leg-front .calf,
+.anim-paused .leg-back .calf,
+.anim-paused .leg-front .foot,
+.anim-paused .leg-back .foot,
+.anim-paused .arm-front,
+.anim-paused .arm-back,
+.anim-paused .arm-front .lower-arm,
+.anim-paused .arm-back .lower-arm,
+.anim-paused .head,
+.anim-paused .mouth-shape {
+  animation-play-state: paused !important;
+}
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(0, 0, 0, 0.35);
+}
+
+/* ==========================================================================
+   Puppet Warp Mode Styles
+   ========================================================================== */
+.btn-puppet-warp {
+  background: linear-gradient(135deg, #f59e0b, #d97706);
+  color: #ffffff !important;
+  box-shadow: 0 4px 14px rgba(217, 119, 6, 0.45);
+  font-weight: 800;
+}
+
+.btn-puppet-warp.active {
+  background: linear-gradient(135deg, #ea580c, #b45309) !important;
+  box-shadow: 0 0 0 2px #fef08a, 0 4px 18px rgba(234, 88, 12, 0.6) !important;
+  transform: scale(1.02);
+}
+
+.puppet-warp-active .character-container {
+  /* Keep character grounded while warping */
+}
+
+/* Authentic Photoshop Pushpin / Warp Pin */
+.puppet-pin {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 90;
+  cursor: grab;
+  user-select: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 900;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  transition: transform 0.12s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.15s ease;
+  touch-action: none;
+}
+
+.puppet-pin:hover {
+  transform: translate(-50%, -50%) scale(1.28);
+  cursor: grab;
+  z-index: 100;
+}
+
+.puppet-pin.dragging {
+  cursor: grabbing !important;
+  transform: translate(-50%, -50%) scale(1.4) !important;
+  z-index: 110 !important;
+}
+
+/* Golden Mesh Pin Theme (Default Photoshop style) */
+.puppet-pin-gold {
+  background: radial-gradient(circle at 35% 30%, #fef08a 0%, #eab308 50%, #854d0e 100%);
+  border: 1.8px solid #ffffff;
+  color: #451a03;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(234, 179, 8, 0.8);
+}
+
+.puppet-pin-gold.dragging {
+  box-shadow: 0 0 16px #facc15, 0 0 26px rgba(234, 179, 8, 0.9), 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+  border-color: #fef9c3 !important;
+}
+
+/* Cyan Mesh Pin Theme */
+.puppet-pin-cyan {
+  background: radial-gradient(circle at 35% 30%, #a5f3fc 0%, #06b6d4 50%, #0e7490 100%);
+  border: 1.8px solid #ffffff;
+  color: #083344;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(6, 182, 212, 0.8);
+}
+
+.puppet-pin-cyan.dragging {
+  box-shadow: 0 0 16px #22d3ee, 0 0 26px rgba(6, 182, 212, 0.9), 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Purple Mesh Pin Theme */
+.puppet-pin-purple {
+  background: radial-gradient(circle at 35% 30%, #e9d5ff 0%, #a855f7 50%, #6b21a8 100%);
+  border: 1.8px solid #ffffff;
+  color: #3b0764;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5), 0 0 10px rgba(168, 85, 247, 0.8);
+}
+
+.puppet-pin-purple.dragging {
+  box-shadow: 0 0 16px #c084fc, 0 0 26px rgba(168, 85, 247, 0.9), 0 4px 12px rgba(0, 0, 0, 0.6) !important;
+}
+
+/* Active Selected Point (The ONE point that can move) */
+.puppet-pin.active-selected {
+  transform: translate(-50%, -50%) scale(1.4) !important;
+  z-index: 120 !important;
+  box-shadow: 0 0 0 3px #22c55e, 0 0 18px rgba(34, 197, 94, 0.9), 0 2px 10px rgba(0, 0, 0, 0.7) !important;
+  animation: puppetSelectedPulse 1.4s infinite alternate ease-in-out;
+}
+
+@keyframes puppetSelectedPulse {
+  0% { box-shadow: 0 0 0 3px #22c55e, 0 0 12px rgba(34, 197, 94, 0.7); }
+  100% { box-shadow: 0 0 0 4px #4ade80, 0 0 24px rgba(34, 197, 94, 1); }
+}
+
+/* Stopped / Anchored Points (Frozen in their exact position) */
+.puppet-pin.stopped-pin {
+  opacity: 0.85;
+  filter: contrast(0.95);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5), inset 0 0 4px rgba(0, 0, 0, 0.4);
+}
+
+.puppet-pin.stopped-pin:hover {
+  opacity: 1;
+  filter: contrast(1.1);
+  transform: translate(-50%, -50%) scale(1.22);
+}
+
+/* Triangular Mesh Grid Lines */
+.puppet-warp-mesh-svg {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 48;
+}
+
+.puppet-mesh-line-gold {
+  stroke: rgba(234, 179, 8, 0.65);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 2;
+  filter: drop-shadow(0 0 3px rgba(234, 179, 8, 0.5));
+}
+
+.puppet-mesh-tri-gold {
+  fill: rgba(234, 179, 8, 0.07);
+  stroke: rgba(250, 204, 21, 0.45);
+  stroke-width: 1;
+}
+
+.puppet-mesh-line-cyan {
+  stroke: rgba(6, 182, 212, 0.65);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 2;
+  filter: drop-shadow(0 0 3px rgba(6, 182, 212, 0.5));
+}
+
+.puppet-mesh-tri-cyan {
+  fill: rgba(6, 182, 212, 0.07);
+  stroke: rgba(34, 211, 238, 0.45);
+  stroke-width: 1;
+}
+
+.puppet-mesh-line-purple {
+  stroke: rgba(168, 85, 247, 0.65);
+  stroke-width: 1.4;
+  stroke-dasharray: 4 2;
+  filter: drop-shadow(0 0 3px rgba(168, 85, 247, 0.5));
+}
+
+.puppet-mesh-tri-purple {
+  fill: rgba(168, 85, 247, 0.07);
+  stroke: rgba(192, 132, 252, 0.45);
+  stroke-width: 1;
+}
+
+@keyframes puppetWarpPulse {
+  0% { transform: scale(1); opacity: 0.8; }
+  50% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.8; }
+}
+
